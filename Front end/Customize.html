@@ -1,0 +1,310 @@
+<html>
+    
+    <head>
+        
+        <link rel="stylesheet" href="bootstrap-4.0.0-dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="fontawesome-free-5.9.0-web/css/all.min.css">
+        <link rel="stylesheet" href="jquery-ui.css">
+        <script src="jquery-3.3.1.min.js"></script>
+        <script src="jquery-ui.min.js"></script>
+        <script src="bootstrap-4.0.0-dist/js/bootstrap.min.js"></script>
+        
+        <script>
+
+            var chosenRole;
+            var json;
+
+            function appendQtn(qtnID, text, role){
+                
+                $("#questions").append("\
+                    <div class='row questionDiv'>\
+                        <p class='col-11'>" + text + "</p>\
+                        <i class='col-1 fas fa-trash deleteQtn' id = '" + qtnID + "'></i>\
+                    </div>");
+                
+                $("#" + qtnID).on('click', (ev)=>{
+                    deleteQtn(role, $(ev.target).attr("id"));  
+                });
+                
+            }
+
+            function openRole(role, json){
+                
+                $(".questionDiv").remove();
+            
+                if(role != ""){
+                    
+                    Object.keys(json[role]).forEach(key => {
+
+                        appendQtn(key, json[role][key], role);
+                    
+                    });
+
+                    $("#questionsTitle").text("Questions for the " + role + " Role");
+                }
+                else{
+                    $("#questionsTitle").text("");    
+                }
+            }
+
+            function deleteQtn(role, qtn){
+                console.log("here");
+                $.ajax({
+                    type: 'delete',
+                    url: "question?id=" + qtn,
+                    success: function(res) {
+                        delete json[role][qtn];
+                        $("#" + qtn).parent("div").remove();
+                    }
+                });
+            }
+
+            
+            function deleteRole(role, callback){
+                console.log("here");
+                $.ajax({
+                    type: 'delete',
+                    url: "role?name=" + role,
+                    success: function(res) {
+                        console.log(res);
+                        delete json[role];
+                        callback(); 
+                    }
+                });
+            }
+
+            function appendRole(name){
+                
+                $("#roles").append("\
+                    <div class='row clickable' id ='" + name + "'>\
+                        <p class='col-10'>" + name + "</p>\
+                        <i class='col-2 fas fa-trash deleteRole'></i>\
+                    </div>");
+                    
+                $("#" + name).on('click', (ev) =>{
+                    var target = $(ev.target);
+                    if(target.is("div")){
+                        chosenRole = target.attr('id');    
+                        openRole(chosenRole, json);
+                    }
+                    else{
+                        chosenRole = target.parent("div").attr('id');
+                        if(target.is("i")){
+                            deleteRole(chosenRole, ()=>{
+                                $(target.parent("div")).remove();   
+                                if(Object.keys(json)[0]){
+                                    chosenRole = Object.keys(json)[0];
+                                }
+                                else{
+                                    chosenRole = "";
+                                }
+                                openRole(chosenRole, json);
+                            });
+                            
+                        }
+                        else{
+                            openRole(chosenRole, json);
+                        }
+                    }
+                    
+                });
+                
+            }
+
+
+            $(window).ready(()=>{
+                
+                $.ajax({
+                    type: 'get',
+                    url: "question",
+                    success: function(resultData) {
+                        
+                        console.log(resultData);
+                        
+                        
+                        json = resultData;
+                        chosenRole = "";
+                        if(Object.keys(resultData)[0]){
+                            chosenRole = Object.keys(resultData)[0];
+                        }
+
+                        Object.keys(resultData).forEach(e=>{
+                            appendRole(e);
+                        });
+
+                        openRole(chosenRole, json);
+
+                        $("#addQtn").click(()=>{
+                            $("#question").val("");
+                            $("#qtnDialog").dialog();
+                        });
+                        $("#addRole").click(()=>{
+                            $("#role").val("");
+                            $("#roleDialog").dialog();
+                        });
+                        
+                        $("#submitRole").click(()=>{
+                            
+                            $.ajax({
+                                type: 'post',
+                                url: "role",
+                                data: {'name': $("#role").val()},
+                                success: function(res) {
+                                    
+                                    if(res['status'] == 0){
+                                        chosenRole = $("#role").val();
+                                        appendRole( $("#role").val());
+                                        json[chosenRole] = {};
+                                        openRole(chosenRole, json);
+                                    }
+
+                                }
+                            });
+                            $("#roleDialog").dialog('close');
+                        }); 
+                        
+                        $("#submitQtn").click(()=>{
+                            
+                            $.ajax({
+                                type: 'post',
+                                url: "question",
+                                data: {'text': $("#question").val(),
+                                        'role_name': chosenRole},
+                                success: function(res) {
+                                    
+                                    if(res['status'] == 0){
+                                        appendQtn(res['id'], $("#question").val(), chosenRole, json);
+                                        json[chosenRole][res['id']] = $("#question").val();
+                                    } 
+                                }
+                            });
+
+                            $("#qtnDialog").dialog("close");
+                            
+                        });                      
+                    }
+                });
+ 
+
+            });
+
+        </script>
+
+        <style>
+            h1{
+                margin: auto;
+                display: block;
+            }
+            .head{
+                margin: 50px auto;
+            }
+            .side{
+                border-color: red;
+                border-style: solid;
+                border-radius: 10px;
+                height: 100%;
+                padding: 20px;
+                font-size: 20px;
+                overflow: scroll;
+            }
+            ::-webkit-scrollbar{
+                width: 0px;
+                background: transparent;
+            }
+            .content{
+                height: 75%;
+            }
+            i{
+                padding: 7px;
+            }
+            .fa-plus:hover{
+                color:rgb(11, 247, 11);
+            }
+            .fa-trash:hover{
+                color: red
+            }
+            .title{
+                font-weight: bold;
+            }
+            .clickable:hover{
+                background-color: whitesmoke;
+                cursor: pointer;
+            }
+            .inputText{
+                width: 100%;
+                padding:10px;
+            }
+            input{
+                margin: 10px auto;
+            }
+            .popup{
+                display: none;
+            }
+            button{
+                outline: none;
+                border: none;
+                border-radius: 5px;
+                color: black;
+                width: 100%;
+                margin-top: 10px;
+                font-weight: bold;
+            }
+            #add:hover{
+                background-color: rgb(11, 247, 11);
+            }
+            button:hover{
+                background-color: red;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div id = "qtnDialog" class="popup" title="New Question">
+            <input class="inputText" type="text" placeholder="Write your question here" id="question">
+            <button id="submitQtn">Add</button>
+        </div>
+
+        <div id = "roleDialog" class="popup" title="New Role">
+            <input class="inputText" type="text" placeholder="Write the new Role here" id="role">
+            <input type="radio" name="general" value="general"> General</br>
+            <input type="radio" name="general" value="specific"> Specific</br>
+            <button id="submitRole">Add</button>
+        </div>
+        
+        <div class="container">
+
+            <div class="row head">
+                    <h1>Customize Questions</h1>
+            </div>
+            
+            <div class="row content">
+                
+                <div class = "col-4 side col" id = "roles">
+                        <div class="row">
+                            
+                            <p class="col-10 title">Roles</p>
+                            <i class="col-2 fas fa-plus" id = "addRole"></i>
+
+                        </div>
+                        
+                </div>
+                <div class = "col-7 offset-1 side" id = "questions">
+                    <div class="row">
+                            
+                        <p class="col-11 title" id = "questionsTitle"></p>
+                        <i class="col-1 fas fa-plus" id = "addQtn"></i>
+
+                    </div>
+                    
+
+                </div>
+    
+            </div>    
+        
+        </div>
+        
+        
+    </body>
+
+</html>
