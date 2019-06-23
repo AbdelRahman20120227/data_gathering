@@ -10,8 +10,30 @@ var con = mysql.createConnection({
 	database: "data_gathering"
 });
 
+app.use(express.urlencoded({extended:true}));
+
+app.get('/Test.html',(req, res, next)=>{
+	con.query("insert into user values(?,?)", [req.query['name'], req.query['role']],
+	(err)=>{
+		if(err){
+			throw err;
+		}
+		else{
+			res.cookie("name", req.query['name']);
+			res.cookie("role", req.query['role']);
+			next();
+		}
+	});
+});
+
+app.get('/Profile.html',(req, res, next)=>{
+	
+	res.cookie("user", req.query['user']);
+	next();
+
+});
+
 app.use(express.static("../Front end/"));
-app.use(bodyParser.urlencoded({extended:true}));
 
 app.get('/question', (req,res)=>{
 
@@ -19,6 +41,17 @@ app.get('/question', (req,res)=>{
 		var id = req.query['id'];
 	
 		con.query("select * from question where id = ? and deleted = 0", [id], 
+			(err, result)=>{
+			if(err)
+				throw err;
+			else{
+				res.send(result);
+			}
+		});
+	}
+	else if(req.query['role']){
+		var role = req.query['role'];
+		con.query("select * from question where role_name = ? and deleted = 0", [role], 
 			(err, result)=>{
 			if(err)
 				throw err;
@@ -86,6 +119,14 @@ app.delete('/question', function(req,res){
 });
 
 app.get('/role', function(req,res){
+	con.query("select * from role where deleted = 0;", (err, result)=>{
+		if(err){
+			throw err;
+		}
+		else{
+			res.send(result);
+		}
+	});	
 });
 
 
@@ -144,4 +185,49 @@ app.delete('/role', function(req,res){
 	});
 });
 
-app.listen(3000);
+app.post('/answer', function(req, res){
+	
+	var data = JSON.parse(req.body['data']);
+	console.log(data);
+	var username = data['username'];
+	var answers = data['answers'];
+	var params = [];
+	Object.keys(answers).forEach(key => {
+		params.push([username, key, answers[key]]);
+	});
+	console.log(params);
+	con.query("insert into answer(username, question_id, text) values ?", [params], 
+		(err)=>{
+			if(err){
+				throw err;
+			}
+			else{
+				res.send({status: 0});
+			}
+	});
+});
+
+app.get('/user', function(req,res){
+	con.query("select name from user;", (err, result)=>{
+		if(err){
+			throw err;
+		}
+		else{
+			res.send(result);
+		}
+	});	
+});
+
+app.delete('/user', function(req,res){
+	con.query("delete from user where name = ?;", [req.query['name']],(err, result)=>{
+		if(err){
+			res.send({status: 1});
+		}
+		else{
+			res.send({status: 0});
+		}
+	});	
+});
+
+
+app.listen(80);

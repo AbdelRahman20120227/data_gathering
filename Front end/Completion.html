@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <script src="jquery-3.3.1.min.js"></script>
+        <link rel="stylesheet" href="fontawesome-free-5.9.0-web/css/all.min.css">
+        <style type="text/css">
+        	
+        	h1{
+                display: inline;
+            }
+            div{
+                margin: auto auto;
+                text-align: center;
+            }
+            #icon{
+                display: block;
+                margin-bottom: 50px;
+                font-size: 200px;
+            }
+        	
+        </style>
+        <script type="text/javascript">
+
+	        
+			function getCookie(name) {
+			    var nameEQ = name + "=";
+			    var ca = document.cookie.split(';');
+			    for(var i=0;i < ca.length;i++) {
+			        var c = ca[i];
+			        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+			        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+			    }
+			    return null;
+            }
+            
+        	$(window).on('load', function(){
+                
+                $("#thanks").text("Thanks for your time " + getCookie("name") + ".");
+            });
+
+        </script>
+    </head>
+    <body>
+        <div><h1 id = 'icon' class='far fa-smile'></h1><h1 id='thanks'></h1></div>
+    </body>
+
+</html>

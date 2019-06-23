@@ -1,0 +1,251 @@
+<html>
+    <head>
+
+        <link rel="stylesheet" href="bootstrap-4.0.0-dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="fontawesome-free-5.9.0-web/css/all.min.css">
+        <link rel="stylesheet" href="jquery-ui.css">
+        <script src="jquery-3.3.1.min.js"></script>
+        <script src="jquery-ui.min.js"></script>
+        <script src="bootstrap-4.0.0-dist/js/bootstrap.min.js"></script>
+
+        <script>
+
+            function setCookie(name,value,days) {
+                var expires = "";
+                if (days) {
+                    var date = new Date();
+                    date.setTime(date.getTime() + (days*24*60*60*1000));
+                    expires = "; expires=" + date.toUTCString();
+                }
+                document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+            }
+            function getCookie(name) {
+                var nameEQ = name + "=";
+                var ca = document.cookie.split(';');
+                for(var i=0;i < ca.length;i++) {
+                    var c = ca[i];
+                    while (c.charAt(0)==' ') c = c.substring(1,c.length);
+                    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+                }
+                return null;
+            }
+
+            var state = true;
+            var big5, needs, values;
+            var json;
+            var children = {};
+            function drawChart(drawingData, type){
+                var ctx = document.getElementById("myChart").getContext('2d');
+                var chart = new Chart(ctx, {
+                    // The type of chart we want to create
+                    type: type,
+
+                    // The data for our dataset
+                    data: {
+                        labels: drawingData.labels,
+                        datasets: [{
+                            data: drawingData.data,
+                            backgroundColor: [
+                                'red',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderColor: [
+                                'red',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+
+                    },
+
+                    // Configuration options go here
+                    options: {
+                        onClick: function(arg0, arg1){
+                            if(state && arg1[0]["_model"] != null){
+                                console.log(arg1[0]["_model"]["label"]);
+                                resetDrawing();
+                                drawChart(children[arg1[0]["_model"]["label"]], 'bar');
+                                state = false;
+                            }
+                        }
+                    }
+                });
+            }
+            function fill(json){
+                
+                var labels = [];
+                var data = [];
+                for(var i = 0; i < json.length; i++){
+                    var curr = json[i];
+                    var name = curr["name"];
+                    var percentile = curr["percentile"];
+                    labels[i] = name;
+                    data[i] = percentile;
+                    console.log("NUMBER: " + i + ": " + name + " " + percentile);
+                }
+                return {'labels' : labels, 'data': data};
+            }
+            
+            function resetDrawing(){
+                $("#big5").remove();
+                $("#container").append(
+                    "<div id = 'big5' class = 'chart'>"+
+                        "<canvas id='myChart'></canvas>"+
+                    "</div>");
+            }
+
+            $(window).on('load', function(){
+                $('h1').text(getCookie('user') + "'s Profile");
+                /*$.ajax({
+                        type: 'get',
+                        url: "getResult",
+                        success: function(resultData) {
+                            
+                            console.log(resultData);
+
+                            json = JSON.parse(resultData);
+                            
+                            big5 = fill(json['personality']);
+                            needs = fill(json['needs']);
+                            values = fill(json['values']);
+                            
+                            for(var i = 0; i < 5; i++){
+                                children[json['personality'][i]['name']] = fill(json['personality'][i]['children']);
+                            }
+
+                            drawChart(big5, 'doughnut');
+                            
+                            
+                        }
+                });*/
+                $(".tab").each(function(i, obj){
+                    $(obj).on('click', function(){
+                        $(".tab").attr('class', $(".tab").attr('class').replace(" active", ""));
+                        $(obj).attr('class', $(obj).attr('class') + " active");
+                        
+                        resetDrawing();
+
+                        if(i == 0){
+                            drawChart(big5, 'doughnut');
+                            state = true;
+                        }
+                        else if(i ==1){
+                            drawChart(needs, 'bar');
+                            state = false;
+                        }
+                        else{
+                            drawChart(values, 'bar');
+                            state = false;
+
+                        }
+                    });
+                });
+                $("#showAnswers").click(()=>{
+                    
+                });
+            });
+            
+        </script>
+        <style type="text/css">
+            body{
+                font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",
+                Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji"
+                ,"Segoe UI Emoji","Segoe UI Symbol";
+            }
+            #tabsArea{
+                overflow: hidden;
+                border-style: none;
+                background-color: red;
+                margin-right: auto;
+                margin-left: auto;
+                margin-bottom: 0;
+                width: 700px;
+            }
+            .tab{
+                padding: 14px 18px ;
+                background-color: red;
+                color: white;
+                border-style: none;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 13px;
+                transition: 1s;
+                outline: none;
+                float: left;
+            }
+            .tab:hover{
+                background-color: rgb(187, 20, 20);
+                outline: none;
+            }
+            .tab.active{
+                background-color: rgb(187, 20, 20);
+                outline: none;
+            }
+            #container{
+                margin: 0px auto;
+                border: 3px solid red;
+                border-top-width: 0px;
+                border-bottom-left-radius: 10px; 
+                border-bottom-right-radius: 10px;
+                width: 700px;
+                height: 70%;
+            }
+
+            .chart{
+                padding: 30px;
+            }
+            h1{
+                margin: auto;
+                display: block;
+            }
+            .head{
+                text-align: center;
+                margin: 50px auto;
+            }
+            .content{
+                height: 75%;
+            }
+            #answers{
+                display: none;
+            }
+            #big5{
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        
+        <div class = 'head'>
+            <h1></h1>
+        </div>
+                
+        <div class = 'content'>
+            <div id = "tabsArea">
+                <button class = 'tab'>Big 5</button>
+                <button class = 'tab'>Needs</button>
+                <button class = 'tab'>Values</button>
+                <button class = 'tab' id = 'showAnswers'>Answers</button>
+                <button class = 'tab'>Submit Competencies</button>
+            </div>
+            <div id = 'container'>
+                
+                <div id = 'big5' class = 'chart'>
+                    <canvas id="myChart"></canvas>
+                </div>
+                <div id = 'answers'>
+                    
+                </div>
+            </div>
+        </div>
+            
+    </body>
+
+</html>

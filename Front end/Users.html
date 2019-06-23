@@ -1,0 +1,179 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="bootstrap-4.0.0-dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="fontawesome-free-5.9.0-web/css/all.min.css">
+        <link rel="stylesheet" href="jquery-ui.css">
+        <script src="jquery-3.3.1.min.js"></script>
+        <script src="jquery-ui.min.js"></script>
+        <script src="bootstrap-4.0.0-dist/js/bootstrap.min.js"></script>
+        
+        
+        <script type="text/javascript">
+
+	        function setCookie(name,value,days) {
+			    var expires = "";
+			    if (days) {
+			        var date = new Date();
+			        date.setTime(date.getTime() + (days*24*60*60*1000));
+			        expires = "; expires=" + date.toUTCString();
+			    }
+			    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+			}
+			function getCookie(name) {
+			    var nameEQ = name + "=";
+			    var ca = document.cookie.split(';');
+			    for(var i=0;i < ca.length;i++) {
+			        var c = ca[i];
+			        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+			        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+			    }
+			    return null;
+			}
+        	$(window).on('load', function(){
+                
+                $.ajax({
+                    type: 'get',
+                    url: 'user',
+                    success: (result)=>{
+                        console.log(result);
+                        result.forEach(element => {
+                            $("#myDiv").append(
+                                "<div class='row clickable' id = '" + element['name'] + "'>\
+                                    <p class = 'col-11'>" + element['name'] + "</p>\
+                                    <i class = 'fas fa-trash col-1'></i>\
+                                </div>");
+                        });
+
+                        $(".clickable").click((e)=>{
+                            var target = $(e.target);
+                            if(target.is('i')){
+                                $.ajax({
+                                    type:'delete',
+                                    url: 'user?name=' + target.parent('div').attr('id'),
+                                    success: (result)=>{
+                                        if(result['status'] == 0){
+                                            target.parent('div').remove();
+                                        }
+                                    }
+                                });
+                            }
+                            else{
+                                if(target.is('p')){
+                                    target = target.parent("div");
+                                }
+                                location = "Profile.html?user=" + target.attr('id');
+                            }
+                        });
+
+                    }
+                });
+
+                
+
+                $("#search").keyup(()=>{
+                    var key = $("#search").val();
+                    $(".clickable").toArray().forEach((element)=>{
+                        if($(element).attr('id').startsWith(key)){
+                            $(element).show();
+                        }
+                        else{
+                            $(element).hide();
+                        }
+                    });
+                });
+
+            });
+        </script>
+        <style type="text/css">
+        	
+            h1{
+                margin: auto;
+                display: block;
+            }
+            .head{
+                margin: 50px auto;
+            }
+            i{
+                padding: 7px;
+            }
+            .content{
+                height: 75%;
+            }
+        	#myDiv{
+                border-color: red;
+                border-style: solid;
+                border-radius: 10px;
+                height: 100%;
+                padding: 20px;
+                font-size: 20px;
+                overflow: scroll;
+            }
+            ::-webkit-scrollbar{
+                width: 0px;
+                background: transparent;
+            }
+            .fa-trash:hover{
+                color: red
+            }
+            .clickable:hover{
+                background-color: whitesmoke;
+                cursor: pointer;
+            }
+          
+        	input{
+                outline: none;
+                border-width: 1px;
+                margin: 11px;
+                padding: 2px;
+            }
+            
+            input:hover{
+        		border-color: red;
+                border-width: 1px; 
+        	}
+            .search input {
+                text-indent: 30px;
+                margin-left: 0px;
+                width:100%
+            }
+            .fa-search { 
+                position: absolute;
+                top: 24px;
+                left: 25px;
+                font-size: 15px;
+                color: darkgray;
+            }
+        </style>
+
+    </head>
+    <body>
+
+        <div class = "container">
+            
+            
+            <div class = "row head">
+                <h1>List of users</h1>
+            </div>
+            
+            <div class = "row content">
+
+
+                <div class = "col-6 offset-3" id = "myDiv">
+                    <div class = 'row'>
+                        
+                        <div class="search col-10">
+                            <span class="fa fa-search"></span>
+                            <input placeholder="Search..." id = 'search'>
+                        </div>
+                    
+                    </div>
+
+                        
+                </div>
+            </div>
+            
+        </div>
+        
+    </body>
+
+</html>
