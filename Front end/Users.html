@@ -28,7 +28,17 @@
 			        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
 			    }
 			    return null;
-			}
+            }
+            
+            function GetFormattedDate(date) {
+                date = new Date(date);
+                var month = date.getMonth() + 1;
+                var day = date.getDate();
+                var year = date.getFullYear();
+                return day + "/" + month + "/" + year;
+            
+            }
+
         	$(window).on('load', function(){
                 
                 $.ajax({
@@ -39,7 +49,9 @@
                         result.forEach(element => {
                             $("#myDiv").append(
                                 "<div class='row clickable' id = '" + element['name'] + "'>\
-                                    <p class = 'col-11'>" + element['name'] + "</p>\
+                                    <p class = 'col-4'>" + element['name'] + "</p>\
+                                    <p class = 'col-4'>" + element['role'] + "</p>\
+                                    <p class = 'col-3'>" + GetFormattedDate(element['date']) + "</p>\
                                     <i class = 'fas fa-trash col-1'></i>\
                                 </div>");
                         });
@@ -143,6 +155,13 @@
                 font-size: 15px;
                 color: darkgray;
             }
+            .title{
+                margin-top: 14px;
+            }
+            #header{
+                background-color: rgb(240, 234, 234);
+                margin-bottom: 15px;
+            }
         </style>
 
     </head>
@@ -158,14 +177,19 @@
             <div class = "row content">
 
 
-                <div class = "col-6 offset-3" id = "myDiv">
-                    <div class = 'row'>
+                <div class = "col-8 offset-2" id = "myDiv">
+                    <div class = 'row' id= 'header'>
                         
-                        <div class="search col-10">
+                        <div class="search col-4">
                             <span class="fa fa-search"></span>
-                            <input placeholder="Search..." id = 'search'>
+                            <input placeholder="Name..." id = 'search'>
                         </div>
-                    
+                        <p class = "col-4 title">
+                            Role
+                        </p>
+                        <p class = "col-4 title">
+                            Creation Date
+                        </p>
                     </div>
 
                         

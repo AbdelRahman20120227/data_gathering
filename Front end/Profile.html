@@ -2,11 +2,10 @@
     <head>
 
         <link rel="stylesheet" href="bootstrap-4.0.0-dist/css/bootstrap.min.css">
-        <link rel="stylesheet" href="fontawesome-free-5.9.0-web/css/all.min.css">
-        <link rel="stylesheet" href="jquery-ui.css">
         <script src="jquery-3.3.1.min.js"></script>
         <script src="jquery-ui.min.js"></script>
-        <script src="bootstrap-4.0.0-dist/js/bootstrap.min.js"></script>
+        <script src="chart.js/dist/Chart.js"></script>
+
 
         <script>
 
@@ -35,6 +34,8 @@
             var json;
             var children = {};
             function drawChart(drawingData, type){
+                console.log("drawing");
+                $("#chart").show();
                 var ctx = document.getElementById("myChart").getContext('2d');
                 var chart = new Chart(ctx, {
                     // The type of chart we want to create
@@ -95,61 +96,82 @@
             }
             
             function resetDrawing(){
-                $("#big5").remove();
+                $("#chart").remove();
                 $("#container").append(
-                    "<div id = 'big5' class = 'chart'>"+
+                    "<div id = 'chart' class = 'choice'>"+
                         "<canvas id='myChart'></canvas>"+
                     "</div>");
             }
 
             $(window).on('load', function(){
                 $('h1').text(getCookie('user') + "'s Profile");
-                /*$.ajax({
+                $.ajax({
                         type: 'get',
-                        url: "getResult",
+                        url: "user?name=" + getCookie('user'),
                         success: function(resultData) {
                             
                             console.log(resultData);
 
-                            json = JSON.parse(resultData);
+                            json = resultData;
                             
-                            big5 = fill(json['personality']);
-                            needs = fill(json['needs']);
-                            values = fill(json['values']);
-                            
+
+
+                            big5 = fill(json['watson']['personality']);
+                            needs = fill(json['watson']['needs']);
+                            values = fill(json['watson']['values']);
+                            answers = json['answers'];
+
                             for(var i = 0; i < 5; i++){
-                                children[json['personality'][i]['name']] = fill(json['personality'][i]['children']);
+                                children[json['watson']['personality'][i]['name']] = 
+                                    fill(json['watson']['personality'][i]['children']);
                             }
+                            
+                            answers.forEach(element => {
+                                
+                                $("#answers").append("<p class = 'question'>" + element['question'] + "</p>\
+                                    <p class = 'answer'>" + element['answer'] + "</p>");
+
+                            });
 
                             drawChart(big5, 'doughnut');
-                            
+                        
                             
                         }
-                });*/
+                });
                 $(".tab").each(function(i, obj){
                     $(obj).on('click', function(){
                         $(".tab").attr('class', $(".tab").attr('class').replace(" active", ""));
                         $(obj).attr('class', $(obj).attr('class') + " active");
-                        
+                        $(".choice").hide();
                         resetDrawing();
 
-                        if(i == 0){
-                            drawChart(big5, 'doughnut');
-                            state = true;
-                        }
-                        else if(i ==1){
-                            drawChart(needs, 'bar');
-                            state = false;
-                        }
-                        else{
-                            drawChart(values, 'bar');
-                            state = false;
-
-                        }
                     });
                 });
+                $("#showBig5").click(()=>{
+
+                    drawChart(big5, 'doughnut');
+                    state = true;
+
+                });
+                $("#showNeeds").click(()=>{
+                    drawChart(needs, 'bar');
+                    state = false;
+
+                });
+                
+                $("#showValues").click(()=>{
+
+                    drawChart(values, 'bar');
+                    state = false;
+
+                });
+
                 $("#showAnswers").click(()=>{
-                    
+                    $("#answers").show();
+                });
+                
+                $("#showScores").click(()=>{
+                    $("#scores").show();
                 });
             });
             
@@ -196,12 +218,9 @@
                 border-bottom-left-radius: 10px; 
                 border-bottom-right-radius: 10px;
                 width: 700px;
-                height: 70%;
+                height: 90%;
             }
 
-            .chart{
-                padding: 30px;
-            }
             h1{
                 margin: auto;
                 display: block;
@@ -216,8 +235,22 @@
             #answers{
                 display: none;
             }
-            #big5{
+            .choice{
+                padding: 30px;
                 display: none;
+            }
+            .choice{
+                height: 100%;
+                overflow: scroll;
+            }
+            .question{
+                font-weight: bold;
+                text-align: center;
+            }
+            .answer{
+                border-radius: 10px;
+                background-color: rgb(226, 220, 220);
+                padding: 10px;
             }
         </style>
     </head>
@@ -229,18 +262,21 @@
                 
         <div class = 'content'>
             <div id = "tabsArea">
-                <button class = 'tab'>Big 5</button>
-                <button class = 'tab'>Needs</button>
-                <button class = 'tab'>Values</button>
+                <button class = 'tab active' id = 'showBig5'>Big 5</button>
+                <button class = 'tab' id = 'showNeeds'>Needs</button>
+                <button class = 'tab' id = 'showValues'>Values</button>
                 <button class = 'tab' id = 'showAnswers'>Answers</button>
-                <button class = 'tab'>Submit Competencies</button>
+                <button class = 'tab' id = 'showScores'>Submit Competencies</button>
             </div>
             <div id = 'container'>
                 
-                <div id = 'big5' class = 'chart'>
+                <div id = 'chart' class = 'choice'>
                     <canvas id="myChart"></canvas>
                 </div>
-                <div id = 'answers'>
+                <div id = 'answers' class = 'choice'>
+                    
+                </div>
+                <div id = 'scores' class = 'choice'>
                     
                 </div>
             </div>

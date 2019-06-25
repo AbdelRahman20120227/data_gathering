@@ -1,3 +1,4 @@
+var PersonalityInsightsV3 = require('watson-developer-cloud/personality-insights/v3');
 var bodyParser = require('body-parser');
 var express = require('express');
 var app = express();
@@ -9,13 +10,22 @@ var con = mysql.createConnection({
 	password: "123456789",
 	database: "data_gathering"
 });
+var PersonalityInsights = new PersonalityInsightsV3(
+    {
+        url: 'https://gateway-wdc.watsonplatform.net/personality-insights/api',
+		iam_apikey: 'movoO0RALv_nClFy598ipfNYBO9DWA1R9nojmexJA6No',
+		version: '2017-10-13'
+    }
+);
 
 app.use(express.urlencoded({extended:true}));
 
 app.post('/user',(req, res)=>{
-	con.query("insert into user values(?,?)", [req.body['name'], req.body['role']],
+	
+	con.query("insert into user values(?,?,'{}', NOW())", [req.body['name'], req.body['role']],
 	(err)=>{
 		if(err){
+			console.log(err);
 			res.send({status: 1});
 		}
 		else{
@@ -186,36 +196,94 @@ app.delete('/role', function(req,res){
 });
 
 app.post('/answer', function(req, res){
-	console.log("arrived              ");	
 	var data = JSON.parse(req.body['data']);
-	console.log(data);
+	//console.log(data);
 	var username = data['username'];
 	var answers = data['answers'];
 	var params = [];
+	var ansString = "";
 	Object.keys(answers).forEach(key => {
 		params.push([username, key, answers[key]]);
+		ansString += answers[key] + "\n";
 	});
-	console.log(params);
+	
+	//console.log(params);
+	//console.log("String: " + ansString);
+
 	con.query("insert into answer(username, question_id, text) values ?", [params], 
 		(err)=>{
 			if(err){
 				console.log(err);
+				res.send({status: 1});
 			}
 			else{
-				res.send({status: 0});
+				var profileParams = {
+					content: ansString,
+					content_type: "text/plain",
+					raw_scores: true
+				}
+				PersonalityInsights.profile(profileParams, (err, profile)=>{
+					if(err){
+						console.log(err);
+						res.send({status: 2});
+					}
+					else{
+						profile = JSON.stringify(profile, null, 2);
+						con.query("update user set insights = ? where name = ?", [profile, username],
+						(err)=>{
+							if(err){
+								console.log(err);
+								res.send({status: 3});
+							}
+							else {
+								res.send({status: 0});
+							}
+						});
+					}
+				});
+				
 			}
 	});
 });
 
 app.get('/user', function(req,res){
-	con.query("select name from user;", (err, result)=>{
-		if(err){
-			throw err;
-		}
-		else{
-			res.send(result);
-		}
-	});	
+	
+	if(req.query['name']){
+		
+		var name = req.query['name'];
+		con.query("select question.text as question, answer.text as answer\
+		 from answer inner join question\
+		on question_id = id where username = ?;", [name],
+		(err, result1)=>{
+			if(err){
+				console.log(err);
+				res.send({status: 1});
+			}
+			else{
+				con.query("select insights from user where name = ?;", [name], 
+				(err, result2)=>{
+					if(err){
+						console.log({status: 2});
+					}
+					else{
+						res.send({watson: JSON.parse(result2[0]['insights']), answers: result1});
+					}
+				});
+			}
+		});
+
+	}
+	else{
+		con.query("select name, role_name as role, submission_date as date from user;", (err, result)=>{
+			if(err){
+				throw err;
+			}
+			else{
+				res.send(result);
+			}
+		});	
+	}
+	
 });
 
 app.delete('/user', function(req,res){

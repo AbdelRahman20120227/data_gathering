@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-        <meta content="utf-8" http-equiv="encoding">
-        <script src="jquery-3.3.1.min.js"></script>
-        <style type="text/css">
-        	body{
-                font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",
-                Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji"
-                ,"Segoe UI Emoji","Segoe UI Symbol";
-                font-weight: bold;
-            }
+		<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+		<meta content="utf-8" http-equiv="encoding">
+		<link rel="stylesheet" href="bootstrap-4.0.0-dist/css/bootstrap.min.css">
+		<link rel="stylesheet" href="fontawesome-free-5.9.0-web/css/all.min.css">
+		<link rel="stylesheet" href="jquery-ui.css">
+		<script src="jquery-3.3.1.min.js"></script>
+		<script src="jquery-ui.min.js"></script>
+		<script src="bootstrap-4.0.0-dist/js/bootstrap.min.js"></script>
+		
+		<style type="text/css">
+        	
         	.myDiv{
         		margin: 30px auto;
         		width: 400px;
@@ -20,19 +21,17 @@
         		border-style: solid;
         		padding: 30px;
         	}
+			h1{
+                margin: auto;
+                display: block;
+        	}
+
         	input, button, select{
         		display: block;
         		width: 300px;
         		margin: 20px auto;
         	}
-        	h1{
-        		text-align: center;
-                font-weight: bold;
-        	}
-            h3{
-                text-align: center;
-                font-weight: bold;
-            }
+        	
         	button{
         		background-color: rgb(71, 70, 70);
         		color: white;
@@ -56,6 +55,18 @@
         	}
         	select:hover{
                 border-color: red;
+            }
+			.head{
+                text-align: center;
+                margin: 50px auto;
+            }
+			span { 
+				display: block;
+                position: absolute;
+                top: 58px;
+                left: 322px;
+                font-size: 15px;
+                color: darkgray;
             }
         </style>
         <script type="text/javascript">
@@ -90,31 +101,60 @@
                     }
                 })  
                 $("#start").on('click', function(){
-               		$.ajax({
-				type: "post",
-				url: "user",
-				data:{name: $("#name").val(), role: $("#role").val()},
-				success: (result)=>{
-					if(result['status'] == 0){
-						window.location = "Test.html";
+					if(/^[a-zA-Z0-9_]+$/.test($("#name").val())){
+						$.ajax({
+							type: "post",
+							url: "user",
+							data:{name: $("#name").val(), role: $("#role").val()},
+							success: (result)=>{
+								if(result['status'] == 0){
+									window.location = "Test.html";
+								}
+								else{
+									alert("This user name is already taken.");
+								}
+							}
+						}); 
 					}
-				}
-			}); 
+               		else{
+						alert("Invalid user name format.");
+					}
                 	
                 });
+				$("#name").keyup(()=>{
+					if(/^[a-zA-Z0-9_]+$/.test($("#name").val())){
+						$("span").attr("class", "fa fa-check");
+					}
+					else{
+						$("span").attr("class", 
+						"fa fa-exclamation-triangle");
+					}
+				});
+				$("#name").focusout(()=>{
 
+					$("span").attr("class","");
+				});
             });
         </script>
     </head>
     <body>
-        <h1>Please fill in your information</h1>
-            
-        <div class = "myDiv">
-            <input class = "data" placeholder="Enter your user name" id = "name">
-            <select class = "data" id = "role">
-            </select>
-            <button id = "start">Take Test</button>
-        </div>
+		<div class = container>
+			<div class = 'head row'>
+				<h1>Please fill in your information</h1>
+			</div>
+				
+			<div class = "myDiv col-12">
+				<div>
+					<span class=""></span>
+					<input class = "data" placeholder="Enter your user name" id = "name">
+				</div>
+				
+				<select class = "data" id = "role">
+				</select>
+				<button id = "start">Take Test</button>
+			</div>
+		</div>
+		
     </body>
 
 </html>

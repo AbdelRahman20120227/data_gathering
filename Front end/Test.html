@@ -1,16 +1,18 @@
-<!DOCTYPE html>
 <html>
     <head>
+    
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
         <meta content="utf-8" http-equiv="encoding">
+        <link rel="stylesheet" href="bootstrap-4.0.0-dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="fontawesome-free-5.9.0-web/css/all.min.css">
+        <link rel="stylesheet" href="jquery-ui.css">
         <script src="jquery-3.3.1.min.js"></script>
+        <script src="jquery-ui.min.js"></script>
+        <script src="bootstrap-4.0.0-dist/js/bootstrap.min.js"></script>
+        
         <style type="text/css">
-        	body{
-                font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",
-                Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji"
-                ,"Segoe UI Emoji","Segoe UI Symbol";
-            }
-        	.myDiv{
+        	
+        	#questionsContainer{
         		margin: 30px auto;
         		width: 600px;
         		border-radius: 10px;
@@ -18,20 +20,21 @@
         		border-width: 3px;
         		border-style: solid;
         		padding: 30px;
-        	}
+            }
         	textarea, button{
         		display: block;
         		width: 400px;
         		margin: 20px auto;
         	}
         	h1{
-        		text-align: center;
-                font-weight: bold;
+                margin: auto;
+                display: block;
         	}
             p{
-                text-align: center;
                 font-size: 20px;
                 font-weight: bold;
+                display: block;
+                margin: auto auto;
             }
         	button{
         		background-color: rgb(71, 70, 70);
@@ -52,7 +55,10 @@
         	textarea:hover{
         		border-color: red;
         	}
-        	
+        	.head{
+                text-align: center;
+                margin: 50px auto;
+            }
         </style>
         <script type="text/javascript">
 
@@ -84,29 +90,50 @@
 
                 $("#submit").on('click', function(){
                     var answersData = {};
-                    $(".data").toArray().forEach((element, i)=>{
-                        answersData[$(element).attr('id')] = $(element).val(); 
-                    });
-                    $.ajax({
-                        type: 'post',
-                        url: 'answer',
-                        data: {'data':JSON.stringify({'username': getCookie('name'), 'answers': answersData})},
-                        success:(result)=>{
-                            window.location = "Completion.html";
+                    var some = $(".data").toArray().some((element, i)=>{
+                        var val = $(element).val().split(/[ ]{2,}/).join(' ').trim();
+                        if(val.length < 1000){
+                            alert("Answers must be at least 1000 characters.");
+                            return true;
                         }
+                        answersData[$(element).attr('id')] = val; 
+                        return false;
                     });
-                    console.log(answersData);
+                    if(!some){
+                        $.ajax({
+                            type: 'post',
+                            url: 'answer',
+                            data: {'data':JSON.stringify({'username': getCookie('name'), 'answers': answersData})},
+                            success:(result)=>{
+                                console.log(result['status']);
+                                if(result['status'] == 0){
+                                    window.location = "Completion.html";
+                                }
+                            }
+                        });
+                        console.log(answersData);
+                    }
+                    
                 });
 
             });
         </script>
     </head>
     <body>
-        <h1 id = 'welcome'></h1>
+        <div class = 'container'>
             
-        <div class = "myDiv" id = "questionsContainer">
-            <button id = "submit">Submit Test</button>
+            <div class = 'head row'>
+                    
+                <h1 id = 'welcome'></h1>
+            
+            </div>
+            
+            <div class = "row" id = "questionsContainer">
+                <button id = "submit">Submit Test</button>
+            </div>
+
         </div>
+        
     </body>
 
 </html>
