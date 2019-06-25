@@ -90,8 +90,16 @@
                     }
                 })  
                 $("#start").on('click', function(){
-                
-                    window.location = "Test.html?name=" + $("#name").val() + "&role=" + $("#role").val();
+               		$.ajax({
+				type: "post",
+				url: "user",
+				data:{name: $("#name").val(), role: $("#role").val()},
+				success: (result)=>{
+					if(result['status'] == 0){
+						window.location = "Test.html";
+					}
+				}
+			}); 
                 	
                 });
 

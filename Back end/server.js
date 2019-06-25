@@ -5,23 +5,23 @@ var mysql = require('mysql');
 
 var con = mysql.createConnection({
 	host: "localhost",
-	user: "root",
-	password: "12345678",
+	user: "Abdelrahman",
+	password: "123456789",
 	database: "data_gathering"
 });
 
 app.use(express.urlencoded({extended:true}));
 
-app.get('/Test.html',(req, res, next)=>{
-	con.query("insert into user values(?,?)", [req.query['name'], req.query['role']],
+app.post('/user',(req, res)=>{
+	con.query("insert into user values(?,?)", [req.body['name'], req.body['role']],
 	(err)=>{
 		if(err){
-			throw err;
+			res.send({status: 1});
 		}
 		else{
-			res.cookie("name", req.query['name']);
-			res.cookie("role", req.query['role']);
-			next();
+			res.cookie("name", req.body['name']);
+			res.cookie("role", req.body['role']);
+			res.send({status: 0});
 		}
 	});
 });
@@ -186,7 +186,7 @@ app.delete('/role', function(req,res){
 });
 
 app.post('/answer', function(req, res){
-	
+	console.log("arrived              ");	
 	var data = JSON.parse(req.body['data']);
 	console.log(data);
 	var username = data['username'];
@@ -199,7 +199,7 @@ app.post('/answer', function(req, res){
 	con.query("insert into answer(username, question_id, text) values ?", [params], 
 		(err)=>{
 			if(err){
-				throw err;
+				console.log(err);
 			}
 			else{
 				res.send({status: 0});
