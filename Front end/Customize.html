@@ -13,7 +13,20 @@
 
             var chosenRole;
             var json;
-
+            
+            function delete_cookie( name ) {
+                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            }
+            function getCookie(name) {
+			    var nameEQ = name + "=";
+			    var ca = document.cookie.split(';');
+			    for(var i=0;i < ca.length;i++) {
+			        var c = ca[i];
+			        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+			        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+			    }
+			    return null;
+			}
             function appendQtn(qtnID, text, role){
                 
                 $("#questions").append("\
@@ -75,20 +88,22 @@
 
             function appendRole(name){
                 
+                var idName = name.split(" ").join('_');
+
                 $("#roles").append("\
-                    <div class='row clickable' id ='" + name + "'>\
+                    <div class='row clickable' id ='" + idName + "'>\
                         <p class='col-10'>" + name + "</p>\
                         <i class='col-2 fas fa-trash deleteRole'></i>\
                     </div>");
-                    
-                $("#" + name).on('click', (ev) =>{
+                
+                $("#" + idName).on('click', (ev) =>{
                     var target = $(ev.target);
                     if(target.is("div")){
-                        chosenRole = target.attr('id');    
+                        chosenRole = target.attr('id').split("_").join(' ');    
                         openRole(chosenRole, json);
                     }
                     else{
-                        chosenRole = target.parent("div").attr('id');
+                        chosenRole = target.parent("div").attr('id').split("_").join(" ");
                         if(target.is("i")){
                             deleteRole(chosenRole, ()=>{
                                 $(target.parent("div")).remove();   
@@ -144,23 +159,32 @@
                         });
                         
                         $("#submitRole").click(()=>{
-                            
-                            $.ajax({
-                                type: 'post',
-                                url: "role",
-                                data: {'name': $("#role").val()},
-                                success: function(res) {
-                                    
-                                    if(res['status'] == 0){
-                                        chosenRole = $("#role").val();
-                                        appendRole( $("#role").val());
-                                        json[chosenRole] = {};
-                                        openRole(chosenRole, json);
-                                    }
+                            if(/^[a-zA-Z0-9 ]+$/.test($("#role").val())){
+                                var currRole = $("#role").val().trim();
+                                $.ajax({
+                                    type: 'post',
+                                    url: "role",
+                                    data: {'name': currRole},
+                                    success: function(res) {
+                                        
+                                        if(res['status'] == 0){
+                                            chosenRole = currRole;
+                                            appendRole(currRole);
+                                            json[chosenRole] = {};
+                                            openRole(chosenRole, json);
+                                        }
+                                        else{
+                                            alert("Sorry you already have " + currRole + " role.");
+                                        }
 
-                                }
-                            });
-                            $("#roleDialog").dialog('close');
+                                    }
+                                });
+                                $("#roleDialog").dialog('close');
+                            }
+                            else{
+                                alert("Roles can't contain symbols");
+                            }
+                            
                         }); 
                         
                         $("#submitQtn").click(()=>{

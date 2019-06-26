@@ -252,6 +252,36 @@
                 background-color: rgb(226, 220, 220);
                 padding: 10px;
             }
+            input{
+                height: 50%;
+            }
+            .s{
+                font-weight: bold;
+                margin: auto auto;
+                
+            }
+            .score{
+                margin-bottom: 10px;
+            }
+            
+            #test{
+                display: block;
+        		width: 300px;
+        		margin: 20px auto;
+        		background-color: rgb(71, 70, 70);
+        		color: white;
+        		border-style: none;
+        		height: 30px;
+        		font-weight: bold;
+        		font-size: 15px;
+                border-radius: 10px;
+                outline: none;
+        	}
+        	#test:hover{
+        		background-color:rgb(4, 133, 4);
+        		color: white;
+        	}
+
         </style>
     </head>
     <body>
@@ -278,6 +308,35 @@
                 </div>
                 <div id = 'scores' class = 'choice'>
                     
+                    <div class = 'row score'>
+                        <p class = 'col-4 offset-3 s'>Leardership</p>
+                        <input type = 'number' class = 'col-1'>
+                        <p class = 'col-1 s'>%</p>
+                    </div>
+                    <div class = 'row score'>
+                        <p class = 'col-4 offset-3 s'>Communication Skills</p>
+                        <input type = 'number' class = 'col-1'>
+                        <p class = 'col-1 s'>%</p>
+                    </div>
+                    <div class = 'row score'>
+                        <p class = 'col-4 offset-3 s'>Presentation Skills</p>
+                        <input type = 'number' class = 'col-1'>
+                        <p class = 'col-1 s'>%</p>
+                    </div>
+
+                    <div class = 'row score'>
+                        <p class = 'col-4 offset-3 s'>Problem Solving</p>
+                        <input type = 'number' class = 'col-1'>
+                        <p class = 'col-1 s'>%</p>
+                    </div>
+
+                    <div class = 'row score'>
+                        <p class = 'col-4 offset-3 s'>Time Management</p>
+                        <input type = 'number' class = 'col-1'>
+                        <p class = 'col-1 s'>%</p>
+                    </div>
+                    <br>
+                    <button id = "test">Submit scores</button>
                 </div>
             </div>
         </div>

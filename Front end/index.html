@@ -25,6 +25,7 @@
         	h1{
                 margin: auto;
                 display: block;
+                text-align: center;
         	}
             
         	button{
@@ -49,17 +50,54 @@
             }
         </style>
         <script type="text/javascript">
+            
+            function getCookie(name) {
+			    var nameEQ = name + "=";
+			    var ca = document.cookie.split(';');
+			    for(var i=0;i < ca.length;i++) {
+			        var c = ca[i];
+			        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+			        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+			    }
+			    return null;
+			}
+            
+            function authenticate(callback){
+                if(getCookie('password') && getCookie('password') != ""){
+                    callback();
+                    return;
+                }
+                var password = prompt("Please enter your administrator password.");
+                $.ajax({
+                    type: 'post',
+                    url: 'login',
+                    data: {'password': password},
+                    success: (result)=>{
+                        if(result['status'] == 0){
+                            callback();
+                        }      
+                        else{
+                            alert("Sorry, the password you've entered is incorrect.")
+                        }     
+                    }
+                });
+            }
 
-        	$(window).on('load', function(){
+            $(window).on('load', function(){
                 
                 $("#manage").on('click', function(){
-                
-                    window.location = "Users.html";
-                	
+                    
+                    authenticate(()=>{
+                        window.location = "Users.html";
+                    })
+                    
                 });
+                
                 $("#customize").on('click', function(){
                 
-                    window.location = "Customize.html";
+                    authenticate(()=>{
+                        window.location = "Customize.html";
+                    })
                     
                 });
                 $("#test").on('click', function(){

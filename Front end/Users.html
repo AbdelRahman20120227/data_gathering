@@ -10,6 +10,7 @@
         
         <script type="text/javascript">
 
+
 	        function setCookie(name,value,days) {
 			    var expires = "";
 			    if (days) {
@@ -83,9 +84,9 @@
                 
 
                 $("#search").keyup(()=>{
-                    var key = $("#search").val();
+                    var key = $("#search").val().trim();
                     $(".clickable").toArray().forEach((element)=>{
-                        if($(element).attr('id').startsWith(key)){
+                        if($(element).attr('id').toLowerCase().startsWith(key.toLowerCase())){
                             $(element).show();
                         }
                         else{
@@ -134,7 +135,8 @@
           
         	input{
                 outline: none;
-                border-width: 1px;
+                border-color: red;
+                border-width: 1px; 
                 margin: 11px;
                 padding: 2px;
             }
@@ -157,10 +159,12 @@
             }
             .title{
                 margin-top: 14px;
+                font-weight: bold;
             }
             #header{
                 background-color: rgb(240, 234, 234);
                 margin-bottom: 15px;
+                position: static;
             }
         </style>
 

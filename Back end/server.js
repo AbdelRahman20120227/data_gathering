@@ -3,6 +3,8 @@ var bodyParser = require('body-parser');
 var express = require('express');
 var app = express();
 var mysql = require('mysql');
+var cookieParser = require('cookie-parser');
+var jwt = require('jsonwebtoken');
 
 var con = mysql.createConnection({
 	host: "localhost",
@@ -18,9 +20,12 @@ var PersonalityInsights = new PersonalityInsightsV3(
     }
 );
 
-app.use(express.urlencoded({extended:true}));
+var password = 123456789;
 
+app.use(express.urlencoded({extended:true}));
+app.use(cookieParser());
 app.post('/user',(req, res)=>{
+	
 	
 	con.query("insert into user values(?,?,'{}', NOW())", [req.body['name'], req.body['role']],
 	(err)=>{
@@ -36,11 +41,32 @@ app.post('/user',(req, res)=>{
 	});
 });
 
+app.get(['/Profile.html', '/Customize.html', '/Users.html'], (req, res, next)=>{
+	console.log("middleware");
+	console.log(req.cookies['password']);
+
+	if(req.cookies['password'] != password){
+		res.cookie('password', '');
+		req.url = 'index.html'
+	}
+	next();
+})
+
 app.get('/Profile.html',(req, res, next)=>{
-	
+
 	res.cookie("user", req.query['user']);
 	next();
 
+});
+
+app.post('/login', (req, res)=>{
+	if(req.body['password'] == password){	
+		res.cookie('password', password);
+		res.send({status: 0});
+	}
+	else{
+		res.send({status: 1});
+	}
 });
 
 app.use(express.static("../Front end/"));

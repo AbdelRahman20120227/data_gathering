@@ -101,11 +101,11 @@
                     }
                 })  
                 $("#start").on('click', function(){
-					if(/^[a-zA-Z0-9_]+$/.test($("#name").val())){
+					if(/^[a-zA-Z0-9_]+$/.test($("#name").val().trim())){
 						$.ajax({
 							type: "post",
 							url: "user",
-							data:{name: $("#name").val(), role: $("#role").val()},
+							data:{name: $("#name").val().trim(), role: $("#role").val()},
 							success: (result)=>{
 								if(result['status'] == 0){
 									window.location = "Test.html";
@@ -122,7 +122,7 @@
                 	
                 });
 				$("#name").keyup(()=>{
-					if(/^[a-zA-Z0-9_]+$/.test($("#name").val())){
+					if(/^[a-zA-Z0-9_]+$/.test($("#name").val().trim())){
 						$("span").attr("class", "fa fa-check");
 					}
 					else{
