@@ -92,8 +92,8 @@
                     var answersData = {};
                     var some = $(".data").toArray().some((element, i)=>{
                         var val = $(element).val().split(/[ ]{2,}/).join(' ').trim();
-                        if(val.length < 1000){
-                            alert("Answers must be at least 1000 characters.");
+                        if(val.length < 500){
+                            alert("Answers must be at least 500-character long.");
                             return true;
                         }
                         answersData[$(element).attr('id')] = val; 

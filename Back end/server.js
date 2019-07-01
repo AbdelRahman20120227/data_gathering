@@ -21,7 +21,6 @@ var PersonalityInsights = new PersonalityInsightsV3(
 );
 
 var password = 123456789;
-
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
 app.post('/user',(req, res)=>{
@@ -87,7 +86,8 @@ app.get('/question', (req,res)=>{
 	}
 	else if(req.query['role']){
 		var role = req.query['role'];
-		con.query("select * from question where role_name = ? and deleted = 0", [role], 
+		con.query("select * from question inner join role on name = role_name\
+		where (role_name = ? or general = 1) and question.deleted = 0", [role], 
 			(err, result)=>{
 			if(err)
 				throw err;
@@ -167,20 +167,23 @@ app.get('/role', function(req,res){
 
 
 app.post('/role', function(req,res){
-
 	con.query("select * from role where name = ?", [req.body['name']], (err, result)=>{
 		if(err){
-			throw err;
+			res.send({status: 3});
 		}
 		else if(result[0]){
 			if(result[0]['deleted'] == 0){
 				res.send({status: 1});
 			}
 			else{
-				con.query("update role set deleted = 0 where name = ?;", [req.body['name']], 
+				con.query("update role set deleted = 0, general = ? where name = ?;"
+				, [(req.body['general'] * 1) == 1, req.body['name']], 
 					(err)=>{
 						if(err)
+						{
+							console.log(err);
 							res.send({status: 2});
+						}
 						else{
 							res.send({status: 0});
 					}
@@ -188,10 +191,12 @@ app.post('/role', function(req,res){
 			}
 		}
 		else{
-			con.query("insert into role values(?, ?);", [req.body['name'], 0], 
+			console.log(req.body['name'] + " " + req.body['general']);
+			con.query("insert into role values(?, ?, ?);", [req.body['name'], 0, 
+			(req.body['general'] * 1) == 1], 
 				(err)=>{
 					if(err)
-						res.send({status: 2});
+						res.send({status: 4});
 					else{
 						res.send({status: 0});
 				}

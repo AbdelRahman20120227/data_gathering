@@ -161,10 +161,14 @@
                         $("#submitRole").click(()=>{
                             if(/^[a-zA-Z0-9 ]+$/.test($("#role").val())){
                                 var currRole = $("#role").val().trim();
+                                console.log($("input[type='checkbox']:checked").length);
                                 $.ajax({
                                     type: 'post',
                                     url: "role",
-                                    data: {'name': currRole},
+                                    data: {
+                                        'name': currRole, 
+                                        'general': $("input[type='checkbox']:checked").length
+                                    },
                                     success: function(res) {
                                         
                                         if(res['status'] == 0){
@@ -291,8 +295,7 @@
 
         <div id = "roleDialog" class="popup" title="New Role">
             <input class="inputText" type="text" placeholder="Write the new Role here" id="role">
-            <input type="radio" name="general" value="general"> General</br>
-            <input type="radio" name="general" value="specific"> Specific</br>
+            <input type="checkbox" value="general"> General</br>
             <button id="submitRole">Add</button>
         </div>
         
