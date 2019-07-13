@@ -1,0 +1,123 @@
+<html>
+    <head>
+        <script src="jquery-3.3.1.min.js"></script>
+        <script src="audiobuffer-to-wav.js"></script>
+        <script>
+            $(()=>{
+                
+                var track = null;
+
+                var arr;
+                var offset;
+                var context;
+                    
+                var handleSuccess = function(stream){
+                    
+                    track = stream.getTracks()[0];
+
+                    arr = [];
+
+                    context = new AudioContext({sampleRate:44100});
+                    
+                    var source = context.createMediaStreamSource(stream);
+
+                    var processor = context.createScriptProcessor(0, 1, 1);
+
+
+                    source.connect(processor);
+                    processor.connect(context.destination);
+
+                    
+
+                    processor.onaudioprocess = function(e) {
+
+                        console.log("channels: " + e.inputBuffer.numberOfChannels + " " + e.outputBuffer.numberOfChannels);
+                        
+                        var copy = context.createBuffer(1, e.inputBuffer.length, e.inputBuffer.sampleRate);
+                       
+                        copy.copyToChannel(e.inputBuffer.getChannelData(0), 0, 0);
+                        arr.push(copy);
+                        console.log(copy);
+                    };
+
+
+
+
+                }
+
+                
+                
+                $("button").click(()=>{
+                    
+                    if(track && track.readyState == "live"){
+
+                        track.stop();
+                        context.close();
+
+                        var saveContext = new AudioContext();
+                        
+                        var record = saveContext.createBuffer(1, arr.length * arr[0].length, arr[0].sampleRate);
+                        
+                        var offset = 0;
+
+                        arr.forEach((e)=>{
+
+                            console.log(offset);
+                            
+                            record.getChannelData(0).set(e.getChannelData(0), offset);
+                            offset += e.length;
+
+                        });
+
+                        console.log(arr.length);
+                        console.log(record);
+                        console.log(record.length);
+                        
+                        var wav = audioBufferToWav(record, {});
+                        
+                        var blob = new window.Blob([new DataView(wav)], {
+                            type: 'audio/wav',
+                            name: 'temp.txt'
+                        });
+                        
+                        var formData = new FormData();
+                        formData.append('file', blob);
+                        
+                        $.ajax({
+                            method: 'post',
+                            url: '/uploadAudio',
+                            data: formData,
+                            enctype: 'multipart/form-data',
+                            contentType: false,
+                            processData: false,
+                            success: (data)=>{
+                                alert(data);
+                            }
+                            
+                        });
+
+                        console.log("WAAAVVVV");
+
+
+                        console.log(blob);
+                        
+                        
+
+                    }
+                    else{
+                        navigator.mediaDevices.getUserMedia({audio: true, video: false})
+                            .then(handleSuccess);
+                    }
+
+                });
+
+            });
+            
+        </script>
+    </head>
+    <body>
+    
+        <audio id="player" controls></audio>
+        <button>start/stop</button>
+    </body>
+</html>

@@ -9,7 +9,8 @@
         <script src="jquery-3.3.1.min.js"></script>
         <script src="jquery-ui.min.js"></script>
         <script src="bootstrap-4.0.0-dist/js/bootstrap.min.js"></script>
-        
+        <script src="audiobuffer-to-wav.js"></script>
+
         <style type="text/css">
         	
         	#questionsContainer{
@@ -20,6 +21,7 @@
         		border-width: 3px;
         		border-style: solid;
         		padding: 30px;
+                text-align: center;
             }
         	textarea, button{
         		display: block;
@@ -59,6 +61,24 @@
                 text-align: center;
                 margin: 50px auto;
             }
+            .record{
+                margin-top: 15px;
+                font-size: 30px;
+            }
+            .record:hover{
+                color: red;
+            }
+            .record.active{
+                animation-name: color_change;
+                animation-duration: 0.5s;
+                animation-direction: alternate;
+                animation-iteration-count: infinite;
+            }
+            @keyframes color_change{
+                from{color: red;}
+                to{color: black;}
+
+            }
         </style>
         <script type="text/javascript">
 
@@ -71,19 +91,134 @@
 			        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
 			    }
 			    return null;
-			}
+            }
+            
+            var track = null;
+
+            var arr;
+            var offset;
+            var context;
+
+            var handleSuccess = function(stream){
+                    
+                track = stream.getTracks()[0];
+
+                arr = [];
+
+                context = new AudioContext({sampleRate:16000});
+                
+                var source = context.createMediaStreamSource(stream);
+
+                var processor = context.createScriptProcessor(0, 1, 1);
+
+
+                source.connect(processor);
+                processor.connect(context.destination);
+
+                
+
+                processor.onaudioprocess = function(e) {
+
+                    console.log("channels: " + e.inputBuffer.numberOfChannels + " " + e.outputBuffer.numberOfChannels);
+                    
+                    var copy = context.createBuffer(1, e.inputBuffer.length, e.inputBuffer.sampleRate);
+                    
+                    copy.copyToChannel(e.inputBuffer.getChannelData(0), 0, 0);
+                    
+                    arr.push(copy);
+                    
+                    console.log(copy);
+                };
+
+
+
+
+            }
+
+            function startRecord(){
+
+            }
+            function stopRecord(){
+                
+            }
         	$(window).on('load', function(){
                 
                 $("#welcome").text("Welcome " + getCookie("name") + ", Please answer the following\
                 questions for the " + getCookie("role") + " role.");
-
+                
+                var recording = false; 
+                
                 $.ajax({
                     type: 'get',
                     url: 'question?role=' + getCookie("role"),
                     success: (result)=>{
                         result.forEach(element => {
                             $("#questionsContainer").prepend("<p>" + element['text'] + "</p>\
+                                <div style='width:100%;'><i class='fas fa-microphone record'></i></div>\
                                 <textarea id = '" + element['id'] + "'class = 'data' rows='10'></textarea>");
+                        });
+                        
+                        $(".record").on('click', (event)=>{
+                            
+                            var obj = event.target;
+                            var curr_class = $(obj).attr('class');
+                            
+                            if(!recording){
+                                $(obj).attr('class', curr_class + " active");
+                                recording = true;
+
+                                navigator.mediaDevices.getUserMedia({audio: true, video: false})
+                                    .then(handleSuccess);
+
+                            }
+                            else{
+                                if(curr_class.indexOf('active') != -1){
+                            
+                                    $(obj).attr('class', curr_class.replace(' active', ''));
+                                    recording = false;
+
+                                    track.stop();
+                                    context.close();
+
+                                    var saveContext = new AudioContext();
+
+                                    var record = saveContext.createBuffer(1, arr.length * arr[0].length, arr[0].sampleRate);
+
+                                    var offset = 0;
+
+                                    arr.forEach((e)=>{
+
+                                        console.log(offset);
+                                        
+                                        record.getChannelData(0).set(e.getChannelData(0), offset);
+                                        offset += e.length;
+
+                                    });
+
+                                    var wav = audioBufferToWav(record, {});
+
+                                    var blob = new window.Blob([new DataView(wav)], {
+                                        type: 'audio/wav',
+                                    });
+                                    var textArea = $(obj).parent().next();
+                                    var questionId = textArea.attr('id');
+                                    var formData = new FormData();
+                                    formData.append('file', blob);
+                                    formData.append('id', questionId);
+                                    $.ajax({
+                                        method: 'post',
+                                        url: '/uploadAudio',
+                                        data: formData,
+                                        enctype: 'multipart/form-data',
+                                        contentType: false,
+                                        processData: false,
+                                        success: (data)=>{
+                                            $(textArea).text(data);
+                                        }
+                                        
+                                    });
+                                }
+                            }
                         });
                     }
                 });

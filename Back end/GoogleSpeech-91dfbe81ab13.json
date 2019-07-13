@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "sunny-caldron-246613",
+  "private_key_id": "91dfbe81ab13dd6d7b61faeaccf6e0f49c9176e7",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDcekyE5QSrC0Fk\nTDWRzuYSfv/uAZGZVQJ3G/wp+H0ME4+Q3rZRidxQeD1bZd+91Id1SkaS4CfivxUb\n+t5Ec4EnnQVGt7KKdTYfkVxz/p1aOY/UenpN6TS9CUzI91DAho2GG66NKX5eikR+\nCoyh72gAhHfI6dHptmB5FErC5qU2jyFfSjaqHL5ynEoNjVwZf+d4RUwlsm0B5k9z\nt122nt4SI5nNr/xgaIcaZh3P9BzReeTdj4f/nwZp/tJ1M9/6ajR9Nz3SZs+dlgLj\nDf/wVma359SUYSQ43iAkLqREHoUsdhkEvkvbqLidnUSTQUZhBzqlMp6MlzOPsJyq\nJW6jjEOvAgMBAAECggEAF/uxwS8Mb/K8fUWQ+jhwbIimHGTNSsmliAFiT8p5B8xE\n7LRdTsdZUOOTgRK24PZyeb7HqIh7rj2s9Ss37GhIH2AER+oJoOgZKBvu26tRwJPM\nYoekMD9y/jE5yg6lGRxJ3tG6Dh76YRxXUQKiw6bAQHYodZGBxROSsPkVHNhsFmAN\nyEtbAvi4lS301y1PvYGLCxsOEuV2aXp8QT8eSVwtcbYDzASqupQgZthvQ8smbGWu\nIOz+lO4ij9TUbf1bRL6b+WUcQQDCUmhBKt6S3n444dKi05WZhx9BFkUVOA1Vj3rh\n0s/SKUxseC0DuJPrtxiYA0aY7g6R8AExGjReHhUcWQKBgQDunq51uoijNqSm2HDQ\nCOkTXX13c2ecbmTM55bVmRLBoI2taA54qSveiLDBbriDOD+tP5Ix8VLVPxRpdKbQ\noSrz1sxOICXwGLk04YcxM7NuE7I59zuivgjuA3Bf4z1F5aa8jjWPFz1GogXKYbVW\n3lWY2XkPJ5zp8wUtRNXit6CMvQKBgQDsiVanCIJrPpr0NwJfOF3tipBYDkYHFtTL\nRilh2r0ZUtSafGGIVtxQRLAmZj7JxQiSOzvM/coS3HBhN1taCX8AlkqO85vI49Ko\nVQ/P9JShPFcMZ1apfkCFtO+yeP3F+v0ilm9HRDyy/mASiXdifh9L1S7en6LZA7nL\nj8ZlX9Q22wKBgBSW/qjL8rRap7R54qogyrPQEl53R854vBvuM9a0gajRiMgYvX7t\n4gous0nNmwA/n0b8wEms8B/UdJdw6GACOCmYNELdhUiFaZ3FhBvbwTTTYEKeMbgm\nO7EF/PFZM1VPrqaAguCY+cGZg3RmH/ah8rLguRB0s5aAUMcKNIZ+n8zlAoGAYLOR\nKn6PGxsgLGFk5drcg6WXd3h2ZqWN34DSoD/V+Ulkw7fABAZG0cYTIc/BMaoM5AO1\nYgwLlgRrKUOBZGDnfCz1VFYBxXJmiA0mhsUeEoDhsZ95zZdg94jOSe+vCEahQIex\n/LfH/QGD83Ahz7FySAViwP8Qi5o7Vh50ZLN1xesCgYEAt9iFCJPj7EeNe7VQ8o93\nsmiNRZcyp9UqrdKvCRfuZcaUMmbFwvGq95e51cE2qSAOhuMtMWxG4tOabe8QDKVP\nUdA+x7IpjjyjAvveMmH8PH/R3BOOqARQ16/YEoenetipfyojHhywLaYhMQS9xcAv\n1TKWB9tTNPbS4tzhaw2rsgg=\n-----END PRIVATE KEY-----\n",
+  "client_email": "speech-to-text-service@sunny-caldron-246613.iam.gserviceaccount.com",
+  "client_id": "106716475210144785798",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/speech-to-text-service%40sunny-caldron-246613.iam.gserviceaccount.com"
+}

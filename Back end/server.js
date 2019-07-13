@@ -1,10 +1,14 @@
+
 var PersonalityInsightsV3 = require('watson-developer-cloud/personality-insights/v3');
-var bodyParser = require('body-parser');
+
+var speechToTextV1 = require('watson-developer-cloud/speech-to-text/v1');
+
 var express = require('express');
 var app = express();
 var mysql = require('mysql');
 var cookieParser = require('cookie-parser');
-var jwt = require('jsonwebtoken');
+
+
 
 var con = mysql.createConnection({
 	host: "localhost",
@@ -12,6 +16,7 @@ var con = mysql.createConnection({
 	password: "123456789",
 	database: "data_gathering"
 });
+
 var PersonalityInsights = new PersonalityInsightsV3(
     {
         url: 'https://gateway-wdc.watsonplatform.net/personality-insights/api',
@@ -20,9 +25,34 @@ var PersonalityInsights = new PersonalityInsightsV3(
     }
 );
 
+var SpeechToText = new speechToTextV1({
+	url: 'https://gateway-lon.watsonplatform.net/speech-to-text/api',
+	iam_apikey : '2p7qErSa1doSccOiC8C7GSfLvyxF6ss3NGWHJBaQD6zF'
+});
+
+var multer = require('multer');
+
+var upload = multer({storage: multer.diskStorage({
+
+	filename: (req, file, cb) => {
+		cb(null, file.fieldname + '-' + Date.now() + '.wav');
+	},
+
+	destination: (req, file, cb)=>{
+		console.log("hereeeeeeeeeeeeeeeeee");
+		cb(null, './audios');
+	}
+})});
+
+
+
 var password = 123456789;
+
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
+app.use(upload.any());
+
+
 app.post('/user',(req, res)=>{
 	
 	
@@ -126,6 +156,7 @@ app.post('/question', function(req,res){
 		 values(?,?,?);", [req.body['text'], req.body['role_name'], 0], 
 		(err, result)=>{
 		if(err)
+			
 			res.send({status: 1});
 		else{
 			res.send(
@@ -329,4 +360,14 @@ app.delete('/user', function(req,res){
 });
 
 
-app.listen(80);
+
+app.post('/uploadAudio', (req, res)=>{
+	
+	
+
+	console.log(req.files[0]);
+	var result = "this is your answer to the question of id: " + req.body['id'];
+	res.send(result);
+});
+
+app.listen(3000);

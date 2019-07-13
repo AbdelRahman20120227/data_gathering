@@ -12,13 +12,12 @@ readXlsxFile(file, { getSheets: true }).then((sheets) => {
         readXlsxFile(file, { sheet: e.name }).then((rows) => {
             
             console.log(e);
-            axios.post("http://localhost/role", "name=" + e.name + "&general=0")
+            axios.post("http://13.95.24.229/role", "name=" + e.name + "&general=0")
             .then(res=>{
                 console.log(res.data);
                 for(var i = 1; i < 6; i++){
                     for(var j = 1; j < 3; j++){
-                        console.log(rows[i][j]);
-                        axios.post("http://localhost/question", 
+                        axios.post("http://13.95.24.229/question", 
                         "text=" + rows[i][j] + "&role_name=" + e.name)
                         .then(res => {
                             console.log(res.data);
