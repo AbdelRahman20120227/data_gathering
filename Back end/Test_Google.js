@@ -3,12 +3,12 @@ var fs = require('fs');
 
 var client = new speech.SpeechClient({
     projectId: 'sunny-caldron-246613',
-    keyFile: './GoogleSpeech-91dfbe81ab13.json'
+    keyFile: './sunny-caldron-246613-6c58c01cc255.json'
 });
 
 console.log("authentication done");
 
-var filename = 'audios/file-1563029134911.wav';
+var filename = 'audios/file-1563029659687.wav';
 
 var file = fs.readFile(filename, (err, data)=>{
     var audioBytes = data.toString('base64');
@@ -40,6 +40,7 @@ var file = fs.readFile(filename, (err, data)=>{
                 text += subElement['transcript'] + " ";
             });
         });
+
         console.log(text);
 
         console.log("starting another request");
