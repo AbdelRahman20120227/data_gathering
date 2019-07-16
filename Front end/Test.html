@@ -99,8 +99,21 @@
             var offset;
             var context;
 
+            
+            var ws = "ws://" + window.location.hostname + ":3010";
+            var client = null;
+
             var handleSuccess = function(stream){
+                
+                client = new WebSocket(ws);
+                
+                client.onmessage = (message)=>{
                     
+                    var input = $(".record.active").parent().next();
+                    console.log(input);
+                    input.text(input.text() + " " + (message.data));
+                }
+
                 track = stream.getTracks()[0];
 
                 arr = [];
@@ -109,7 +122,7 @@
                 
                 var source = context.createMediaStreamSource(stream);
 
-                var processor = context.createScriptProcessor(0, 1, 1);
+                var processor = context.createScriptProcessor(2048, 1, 1);
 
 
                 source.connect(processor);
@@ -119,15 +132,14 @@
 
                 processor.onaudioprocess = function(e) {
 
-                    console.log("channels: " + e.inputBuffer.numberOfChannels + " " + e.outputBuffer.numberOfChannels);
-                    
                     var copy = context.createBuffer(1, e.inputBuffer.length, e.inputBuffer.sampleRate);
                     
                     copy.copyToChannel(e.inputBuffer.getChannelData(0), 0, 0);
                     
                     arr.push(copy);
-                    
-                    console.log(copy);
+
+                    client.send(audioBufferToWav(copy, {}));
+
                 };
 
 
@@ -135,13 +147,10 @@
 
             }
 
-            function startRecord(){
-
-            }
-            function stopRecord(){
-                
-            }
+            
         	$(window).on('load', function(){
+                
+                
                 
                 $("#welcome").text("Welcome " + getCookie("name") + ", Please answer the following\
                 questions for the " + getCookie("role") + " role.");
@@ -173,7 +182,11 @@
                             }
                             else{
                                 if(curr_class.indexOf('active') != -1){
-                            
+                                    
+                                    client.send(-1);
+                                    
+                                    
+
                                     $(obj).attr('class', curr_class.replace(' active', ''));
                                     recording = false;
 
@@ -213,7 +226,7 @@
                                         contentType: false,
                                         processData: false,
                                         success: (data)=>{
-                                            $(textArea).text(data);
+                                            console.log(data);
                                         }
                                         
                                     });

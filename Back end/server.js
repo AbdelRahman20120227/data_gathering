@@ -371,3 +371,52 @@ app.post('/uploadAudio', (req, res)=>{
 });
 
 app.listen(3000);
+
+
+var speech = require('@google-cloud/speech');
+
+
+var config = {
+	encoding: 'LINEAR16',
+	sampleRateHertz: 16000,
+	languageCode: 'en-US',
+};
+
+var request = {
+	config: config,
+};
+
+var websocket = require('ws');
+var wss = new websocket.Server({port: 3010});
+
+wss.on('connection', (client)=>{
+
+	
+	var speechClient = new speech.v1.SpeechClient({
+		projectId: 'sunny-caldron-246613',
+		keyFile: '../../../Google speech key/sunny-caldron-246613-6c58c01cc255.json'
+	});
+	
+	const stream = speechClient.streamingRecognize(request);
+	
+	stream.on('data', (data)=>{
+		console.log("here");
+		console.log(data.results[0].alternatives[0].transcript);
+		client.send(data.results[0].alternatives[0].transcript);
+	});
+	
+	
+	client.on('message', (voiceData)=>{
+
+		if(voiceData == -1){
+			client.close();
+			stream.end();
+		}
+		else{
+
+			console.log(voiceData);
+			stream.write(voiceData);
+		}
+	});
+
+});
